@@ -1,7 +1,6 @@
 # vsetup
 
-`vsetup` is a lightweight developer workflow CLI for managing repo-specific setup and tools.
-
+`vsetup` is a lightweight developer workflow CLI for configuring aliases, keybindings. Currently supports some git operations. Will add more later. 
 It is designed to keep project-specific behavior inside each repository while providing one consistent command interface.
 
 ## Main Features
