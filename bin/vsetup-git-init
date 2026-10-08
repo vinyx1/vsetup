@@ -1,0 +1,175 @@
+#!/bin/zsh
+
+VSETUP_ROOT="$HOME/vsetup"
+
+ROOT="$PWD"
+
+ROOT="$(python3 "$VSETUP_ROOT/lib/path_utils.py" "$ROOT")"
+
+if [[ -z "$ROOT" ]]; then
+    echo "Failed to resolve repository path."
+    exit 1
+fi
+
+echo "Using directory:"
+echo "  $ROOT"
+echo
+
+
+# ---------------------------------------------------------
+# Initialize Git
+# ---------------------------------------------------------
+
+if git -C "$ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Git is already initialized here."
+else
+    git -C "$ROOT" init || exit 1
+    echo "Initialized Git repository."
+fi
+
+
+# ---------------------------------------------------------
+# Initial commit
+# ---------------------------------------------------------
+
+if ! git -C "$ROOT" rev-parse HEAD >/dev/null 2>&1; then
+    git -C "$ROOT" add . || exit 1
+
+    # Don't try committing if there is literally nothing to commit.
+    if git -C "$ROOT" diff --cached --quiet; then
+        echo "Nothing to commit."
+        echo "Add at least one file before connecting this repo."
+        exit 1
+    fi
+
+    git -C "$ROOT" commit -m "Initial commit" || exit 1
+fi
+
+
+# ---------------------------------------------------------
+# Rename branch to main
+# ---------------------------------------------------------
+
+git -C "$ROOT" branch -M main || exit 1
+
+
+# ---------------------------------------------------------
+# Remote
+# ---------------------------------------------------------
+
+echo
+echo "Enter the GitHub repository URL."
+echo "Example:"
+echo "  https://github.com/username/repository.git"
+echo
+echo "Or type 'create' to create a new private GitHub repository."
+echo
+
+read "REMOTE_URL?Remote URL or 'create': "
+
+if [[ -z "$REMOTE_URL" ]]; then
+    echo "No remote information provided."
+    exit 1
+fi
+
+
+# ---------------------------------------------------------
+# Existing origin
+# ---------------------------------------------------------
+
+if git -C "$ROOT" remote get-url origin >/dev/null 2>&1; then
+    EXISTING_ORIGIN="$(git -C "$ROOT" remote get-url origin)"
+
+    echo
+    echo "Existing origin found:"
+    echo "  $EXISTING_ORIGIN"
+    echo
+
+    read "REPLACE_ORIGIN?Replace existing origin? [y/N]: "
+
+    case "$REPLACE_ORIGIN" in
+        y|Y)
+            git -C "$ROOT" remote remove origin || exit 1
+            ;;
+        *)
+            echo "Keeping existing origin."
+            exit 1
+            ;;
+    esac
+fi
+
+# ---------------------------------------------------------
+# Create remote repository
+# ---------------------------------------------------------
+
+if [[ "$REMOTE_URL" == "create" ]]; then
+    echo
+    echo "Creating a new private GitHub repository..."
+
+    # Make sure GitHub CLI is authenticated.
+    if ! gh auth status >/dev/null 2>&1; then
+        echo "GitHub CLI is not authenticated."
+        echo "Run:"
+        echo "  gh auth login"
+        exit 1
+    fi
+
+    # Create the GitHub repo and connect it as origin.
+    #
+    # Do NOT use --push here.
+    # We explicitly push afterward so we know whether
+    # the push actually succeeded.
+    gh repo create \
+        --source "$ROOT" \
+        --remote origin \
+        --private \
+        || exit 1
+
+    REMOTE_URL="$(git -C "$ROOT" remote get-url origin)"
+
+    echo
+    echo "Created remote:"
+    echo "  $REMOTE_URL"
+    echo
+    echo "Pushing main..."
+
+    git -C "$ROOT" push -u origin main || exit 1
+
+    # Verify against the ACTUAL remote rather than relying
+    # on the local origin/main tracking reference.
+    if ! git -C "$ROOT" ls-remote \
+        --exit-code \
+        --heads origin main \
+        >/dev/null 2>&1
+    then
+        echo "Push completed, but remote main could not be verified."
+        exit 1
+    fi
+
+    echo
+    echo "Repository successfully created and pushed."
+    echo "Remote:"
+    echo "  $REMOTE_URL"
+
+    exit 0
+fi
+
+
+# ---------------------------------------------------------
+# Add existing remote
+# ---------------------------------------------------------
+
+git -C "$ROOT" remote add origin "$REMOTE_URL" || exit 1
+
+
+# ---------------------------------------------------------
+# Push
+# ---------------------------------------------------------
+
+git -C "$ROOT" push -u origin main || exit 1
+
+
+echo
+echo "Repository successfully connected and pushed."
+echo "Remote:"
+echo "  $REMOTE_URL"

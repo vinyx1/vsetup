@@ -1,0 +1,72 @@
+#!/bin/zsh
+
+VSETUP_ROOT="$HOME/vsetup"
+
+# ---------------------------------------------------------
+# Determine target directory
+# ---------------------------------------------------------
+
+if [[ $# -gt 1 ]]; then
+    echo "Usage: vsetup-unset [directory]"
+    exit 1
+fi
+
+if [[ $# -eq 0 ]]; then
+    ROOT="$PWD"
+else
+    INPUT_DIR="$1"
+
+    # Support:
+    #   /Github/ece150 -> ~/Github/ece150
+    #   /Users/vince/Github/ece150 -> absolute path
+    if [[ "$INPUT_DIR" == "$HOME"* ]]; then
+        TARGET="$INPUT_DIR"
+    else
+        TARGET="$HOME$INPUT_DIR"
+    fi
+
+    ROOT="$(cd "$TARGET" 2>/dev/null && pwd)"
+
+    if [[ -z "$ROOT" ]]; then
+        echo "Directory does not exist:"
+        echo "  $TARGET"
+        exit 1
+    fi
+fi
+
+
+# Canonicalize path once so every helper receives
+# exactly the same repo path.
+ROOT="$(python3 "$VSETUP_ROOT/lib/path_utils.py" "$ROOT")"
+
+if [[ -z "$ROOT" ]]; then
+    echo "Failed to resolve repository path."
+    exit 1
+fi
+
+
+echo "Removing vsetup from:"
+echo "  $ROOT"
+echo
+
+
+# ---------------------------------------------------------
+# Undo setup
+# ---------------------------------------------------------
+
+zsh "$VSETUP_ROOT/lib/uncreate_vsetup_in.sh" "$ROOT" || exit 1
+
+zsh "$VSETUP_ROOT/lib/unregister_dir.sh" "$ROOT" || exit 1
+
+python3 "$VSETUP_ROOT/lib/unregister_aliases.py" "$ROOT" || exit 1
+
+
+# ---------------------------------------------------------
+# Recompile VS Code keybindings
+# ---------------------------------------------------------
+
+"$VSETUP_ROOT/bin/vsetup-compile" || exit 1
+
+
+echo
+echo "vsetup unset complete."

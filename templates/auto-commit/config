@@ -1,0 +1,5 @@
+# Whether auto-commit should run whenever you are inside this repo.
+ENABLED=true
+
+# Seconds between automatic commit checks.
+INTERVAL_SECONDS=20

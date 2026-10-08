@@ -1,0 +1,5 @@
+# ---------------- vsetup zsh ----------------
+if [[ -f "$HOME/vsetup/shell/zsh.sh" ]]; then
+    source "$HOME/vsetup/shell/zsh.sh"
+fi
+# -------------- end vsetup zsh ---------------

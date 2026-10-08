@@ -1,0 +1,6 @@
+#!/bin/zsh
+
+VSETUP_ROOT="$HOME/vsetup"
+
+python3 "$VSETUP_ROOT/lib/compile_keybindings.py"
+exit $?

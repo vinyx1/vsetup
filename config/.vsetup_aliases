@@ -1,0 +1,104 @@
+# ---------- vsetup:repo:start /Users/vince/Github/ece150 ----------
+
+ECE150_DIR="/Users/vince/Github/ece150"
+ECE150_ALIASES="/Users/vince/Github/ece150/.vsetup/aliases.sh"
+
+load_ece150_aliases() {
+    if [[ "$PWD" == "$ECE150_DIR" || "$PWD" == "$ECE150_DIR/"* ]]; then
+        source "$ECE150_ALIASES"
+    fi
+}
+
+load_ece150_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/ece150 ----------
+
+# ---------- vsetup:repo:start /Users/vince/Github/cp ----------
+
+CP_DIR="/Users/vince/Github/cp"
+CP_ALIASES="/Users/vince/Github/cp/.vsetup/aliases.sh"
+
+load_cp_aliases() {
+    if [[ "$PWD" == "$CP_DIR" || "$PWD" == "$CP_DIR/"* ]]; then
+        source "$CP_ALIASES"
+    fi
+}
+
+load_cp_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/cp ----------
+
+# ---------- vsetup:repo:start /Users/vince/Github/uwasic/raytracing ----------
+
+RAYTRACING_DIR="/Users/vince/Github/uwasic/raytracing"
+RAYTRACING_ALIASES="/Users/vince/Github/uwasic/raytracing/.vsetup/aliases.sh"
+
+load_raytracing_aliases() {
+    if [[ "$PWD" == "$RAYTRACING_DIR" || "$PWD" == "$RAYTRACING_DIR/"* ]]; then
+        source "$RAYTRACING_ALIASES"
+    fi
+}
+
+load_raytracing_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/uwasic/raytracing ----------
+
+# ---------- vsetup:repo:start /Users/vince/Github/web/schedule ----------
+
+SCHEDULE_DIR="/Users/vince/Github/web/schedule"
+SCHEDULE_ALIASES="/Users/vince/Github/web/schedule/.vsetup/aliases.sh"
+
+load_schedule_aliases() {
+    if [[ "$PWD" == "$SCHEDULE_DIR" || "$PWD" == "$SCHEDULE_DIR/"* ]]; then
+        source "$SCHEDULE_ALIASES"
+    fi
+}
+
+load_schedule_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/web/schedule ----------
+
+# ---------- vsetup:repo:start /Users/vince/Github/testing ----------
+
+TESTING_DIR="/Users/vince/Github/testing"
+TESTING_ALIASES="/Users/vince/Github/testing/.vsetup/aliases.sh"
+
+load_testing_aliases() {
+    if [[ "$PWD" == "$TESTING_DIR" || "$PWD" == "$TESTING_DIR/"* ]]; then
+        source "$TESTING_ALIASES"
+    fi
+}
+
+load_testing_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/testing ----------
+
+# ---------- vsetup:repo:start /Users/vince/Github/uwasic/F26-Raytracing ----------
+
+F26_RAYTRACING_DIR="/Users/vince/Github/uwasic/F26-Raytracing"
+F26_RAYTRACING_ALIASES="/Users/vince/Github/uwasic/F26-Raytracing/.vsetup/aliases.sh"
+
+load_f26_raytracing_aliases() {
+    if [[ "$PWD" == "$F26_RAYTRACING_DIR" || "$PWD" == "$F26_RAYTRACING_DIR/"* ]]; then
+        source "$F26_RAYTRACING_ALIASES"
+    fi
+}
+
+load_f26_raytracing_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/uwasic/F26-Raytracing ----------
+
+# ---------- vsetup:repo:start /Users/vince/Github/uwasic ----------
+
+UWASIC_DIR="/Users/vince/Github/uwasic"
+UWASIC_ALIASES="/Users/vince/Github/uwasic/.vsetup/aliases.sh"
+
+load_uwasic_aliases() {
+    if [[ "$PWD" == "$UWASIC_DIR" || "$PWD" == "$UWASIC_DIR/"* ]]; then
+        source "$UWASIC_ALIASES"
+    fi
+}
+
+load_uwasic_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/uwasic ----------

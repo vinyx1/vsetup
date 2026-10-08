@@ -1,0 +1,104 @@
+# vsetup
+
+`vsetup` is a lightweight developer workflow CLI for managing repo-specific setup and tools.
+
+It is designed to keep project-specific behavior inside each repository while providing one consistent command interface.
+
+## Main Features
+
+- Repo-specific shell aliases
+- Repo-specific VS Code keybindings
+- Git/GitHub initialization
+- Project helper scripts
+- Optional auto-commit support
+- Automatic loading/unloading when entering or leaving repos
+
+## Basic Commands
+
+Initialize vsetup in the current repo:
+
+```bash
+vsetup
+```
+
+Remove vsetup from the current repo:
+
+```bash
+vsetup unset
+```
+
+Compile repo keybindings into VS Code:
+
+```bash
+vsetup compile
+```
+
+Initialize Git and connect the repo to GitHub:
+
+```bash
+vsetup git-init
+```
+
+## Auto Commit
+
+Initialize auto-commit:
+
+```bash
+vsetup auto-commit init
+```
+
+Enable it:
+
+```bash
+vsetup auto-commit on
+```
+
+Disable it:
+
+```bash
+vsetup auto-commit off
+```
+
+Check status:
+
+```bash
+vsetup auto-commit status
+```
+
+Change the interval:
+
+```bash
+vsetup auto-commit interval 120
+```
+
+Watch auto-commit activity:
+
+```bash
+vsetup auto-commit watch
+```
+
+When auto-commit is enabled, it runs while a shell is inside the repo and stops when the repo is no longer active.
+
+## Repo Configuration
+
+A repo using vsetup contains a `.vsetup` directory:
+
+```text
+.vsetup/
+├── aliases.sh
+├── keybindings.json
+├── scripts/
+└── auto-commit/
+```
+
+The idea is simple:
+
+```text
+vsetup
+    provides the CLI and shared tooling
+
+.vsetup/
+    stores repo-specific configuration
+```
+
+`vsetup` is currently built primarily for macOS using Bash, Zsh, Python, Git, and the GitHub CLI.

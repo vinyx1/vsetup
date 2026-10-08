@@ -1,0 +1,5 @@
+# ---------------- vsetup bash ----------------
+if [[ -f "$HOME/vsetup/shell/bash.sh" ]]; then
+    source "$HOME/vsetup/shell/bash.sh"
+fi
+# -------------- end vsetup bash --------------

@@ -1,0 +1,198 @@
+#!/bin/zsh
+
+VSETUP_ROOT="$HOME/vsetup"
+TEMPLATE_DIR="$VSETUP_ROOT/templates/auto-commit"
+
+
+# ---------------------------------------------------------
+# Find nearest vsetup repo
+# ---------------------------------------------------------
+
+find_vsetup_root() {
+    local dir="$PWD"
+
+    while [[ "$dir" != "/" ]]; do
+        if [[ -d "$dir/.vsetup" ]]; then
+            echo "$dir"
+            return 0
+        fi
+
+        dir="$(dirname "$dir")"
+    done
+
+    return 1
+}
+
+
+ROOT="$(find_vsetup_root)"
+
+if [[ -z "$ROOT" ]]; then
+    echo "This directory is not inside a vsetup repo."
+    echo "Run:"
+    echo "  vsetup"
+    exit 1
+fi
+
+ROOT="$(python3 "$VSETUP_ROOT/lib/path_utils.py" "$ROOT")"
+
+if [[ -z "$ROOT" ]]; then
+    echo "Failed to resolve repository path."
+    exit 1
+fi
+
+
+AUTO_DIR="$ROOT/.vsetup/auto-commit"
+CONTROL="$AUTO_DIR/control.sh"
+
+COMMAND="$1"
+
+
+# ---------------------------------------------------------
+# Validate Git + remote
+# ---------------------------------------------------------
+
+validate_git_remote() {
+    if ! git -C "$ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        echo "This directory is not a Git repository."
+        echo "Run:"
+        echo "  vsetup git-init"
+        return 1
+    fi
+
+    GIT_ROOT="$(git -C "$ROOT" rev-parse --show-toplevel 2>/dev/null)"
+    GIT_ROOT="$(python3 "$VSETUP_ROOT/lib/path_utils.py" "$GIT_ROOT")"
+
+    if [[ "$GIT_ROOT" != "$ROOT" ]]; then
+        echo "The vsetup root is not the Git repository root."
+        echo
+        echo "vsetup root:"
+        echo "  $ROOT"
+        echo
+        echo "Git root:"
+        echo "  $GIT_ROOT"
+        return 1
+    fi
+
+    if ! git -C "$ROOT" remote get-url origin >/dev/null 2>&1; then
+        echo "No Git remote named 'origin' is configured."
+        echo "Run:"
+        echo "  vsetup git-init"
+        return 1
+    fi
+
+    REMOTE_URL="$(git -C "$ROOT" remote get-url origin)"
+
+    if ! git -C "$ROOT" ls-remote origin >/dev/null 2>&1; then
+        echo "Remote 'origin' exists locally but could not be reached."
+        echo "Remote:"
+        echo "  $REMOTE_URL"
+        return 1
+    fi
+
+    return 0
+}
+
+
+# ---------------------------------------------------------
+# Keep local auto-commit config out of Git
+# ---------------------------------------------------------
+
+exclude_local_config() {
+    local exclude_file
+
+    exclude_file="$(git -C "$ROOT" rev-parse --git-path info/exclude)"
+
+    if [[ "$exclude_file" != /* ]]; then
+        exclude_file="$ROOT/$exclude_file"
+    fi
+
+    mkdir -p "$(dirname "$exclude_file")"
+    touch "$exclude_file"
+
+    local rule="/.vsetup/auto-commit/config"
+
+    if ! grep -Fxq "$rule" "$exclude_file"; then
+        echo "$rule" >> "$exclude_file"
+    fi
+}
+
+
+# ---------------------------------------------------------
+# init is handled by vsetup itself
+# ---------------------------------------------------------
+
+if [[ "$COMMAND" == "init" ]]; then
+
+    validate_git_remote || exit 1
+
+    if [[ -d "$AUTO_DIR" ]]; then
+        echo "Auto-commit is already initialized."
+        exit 0
+    fi
+
+    if [[ ! -d "$TEMPLATE_DIR" ]]; then
+        echo "Auto-commit template is missing:"
+        echo "  $TEMPLATE_DIR"
+        exit 1
+    fi
+
+    cp -R "$TEMPLATE_DIR" "$AUTO_DIR" || exit 1
+
+    exclude_local_config || exit 1
+
+    echo "Auto-commit initialized."
+    echo
+    echo "Enable it with:"
+    echo "  vsetup auto-commit on"
+
+    exit 0
+fi
+
+
+# ---------------------------------------------------------
+# All other commands belong to the repo's control.sh
+# ---------------------------------------------------------
+
+if [[ ! -f "$CONTROL" ]]; then
+    echo "Auto-commit is not initialized."
+    echo "Run:"
+    echo "  vsetup auto-commit init"
+    exit 1
+fi
+
+
+case "$COMMAND" in
+
+    on)
+        validate_git_remote || exit 1
+        zsh "$CONTROL" on
+        ;;
+
+    off)
+        zsh "$CONTROL" off
+        ;;
+
+    status)
+        zsh "$CONTROL" status
+        ;;
+
+    watch)
+        zsh "$CONTROL" watch
+        ;;
+
+    interval)
+        zsh "$CONTROL" interval "$2"
+        ;;
+
+    *)
+        echo "Usage:"
+        echo "  vsetup auto-commit init"
+        echo "  vsetup auto-commit on"
+        echo "  vsetup auto-commit off"
+        echo "  vsetup auto-commit status"
+        echo "  vsetup auto-commit watch"
+        echo "  vsetup auto-commit interval <seconds>"
+        exit 1
+        ;;
+
+esac

@@ -1,0 +1,94 @@
+#!/bin/zsh
+
+VSETUP_ROOT="$HOME/vsetup"
+
+# ---------------------------------------------------------
+# Commands
+# ---------------------------------------------------------
+
+if [[ "$1" == "compile" ]]; then
+    zsh "$VSETUP_ROOT/bin/vsetup-compile"
+    exit $?
+fi
+
+if [[ "$1" == "unset" ]]; then
+    shift
+    zsh "$VSETUP_ROOT/bin/vsetup-unset" "$@"
+    exit $?
+fi
+
+if [[ "$1" == "git-init" ]]; then
+    shift
+    zsh "$VSETUP_ROOT/bin/vsetup-git-init" "$@"
+    exit $?
+fi
+
+if [[ "$1" == "auto-commit" ]]; then
+    shift
+    zsh "$VSETUP_ROOT/bin/vsetup-auto-commit" "$@"
+    exit $?
+fi
+
+# ---------------------------------------------------------
+# Determine target directory
+# ---------------------------------------------------------
+
+if [[ $# -gt 1 ]]; then
+    echo "Did you spell it wrong?"
+    echo "Usage: vsetup [directory]"
+    exit 1
+fi
+
+if [[ $# -eq 1 ]]; then
+    INPUT_DIR="$1"
+
+    # Support:
+    #   /Github/ece150 -> ~/Github/ece150
+    #   /Users/vince/Github/ece150 -> absolute path
+    if [[ "$INPUT_DIR" == "$HOME"* ]]; then
+        TARGET="$INPUT_DIR"
+    else
+        TARGET="$HOME$INPUT_DIR"
+    fi
+
+    ROOT="$(cd "$TARGET" 2>/dev/null && pwd)"
+
+    if [[ -z "$ROOT" ]]; then
+        echo "Directory does not exist:"
+        echo "  $TARGET"
+        exit 1
+    fi
+else
+    ROOT="$PWD"
+fi
+
+
+# ---------------------------------------------------------
+# Canonicalize path
+# ---------------------------------------------------------
+
+ROOT="$(python3 "$VSETUP_ROOT/lib/path_utils.py" "$ROOT")"
+
+if [[ -z "$ROOT" ]]; then
+    echo "Failed to resolve repository path."
+    exit 1
+fi
+
+
+echo "Using directory:"
+echo "  $ROOT"
+
+
+# ---------------------------------------------------------
+# Setup
+# ---------------------------------------------------------
+
+zsh "$VSETUP_ROOT/lib/create_vsetup_in.sh" "$ROOT" || exit 1
+
+zsh "$VSETUP_ROOT/lib/register_dir.sh" "$ROOT" || exit 1
+
+python3 "$VSETUP_ROOT/lib/register_aliases.py" "$ROOT" || exit 1
+
+
+echo
+echo "vsetup complete."
