@@ -11,6 +11,16 @@ if [[ -z "$ROOT" ]]; then
     exit 1
 fi
 
+GITIGNORE="$ROOT/.gitignore"
+GITIGNORE_TEMPLATE="$VSETUP_ROOT/templates/gitignore"
+
+if [[ ! -e "$GITIGNORE" ]]; then
+    cp "$GITIGNORE_TEMPLATE" "$GITIGNORE" || exit 1
+    echo "Created .gitignore."
+else
+    echo "Keeping existing .gitignore."
+fi
+
 echo "Using directory:"
 echo "  $ROOT"
 echo

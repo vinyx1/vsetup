@@ -102,3 +102,48 @@ load_uwasic_aliases() {
 load_uwasic_aliases
 
 # ---------- vsetup:repo:end /Users/vince/Github/uwasic ----------
+
+# ---------- vsetup:repo:start /Users/vince/Github/ai ----------
+
+AI_DIR="/Users/vince/Github/ai"
+AI_ALIASES="/Users/vince/Github/ai/.vsetup/aliases.sh"
+
+load_ai_aliases() {
+    if [[ "$PWD" == "$AI_DIR" || "$PWD" == "$AI_DIR/"* ]]; then
+        source "$AI_ALIASES"
+    fi
+}
+
+load_ai_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/ai ----------
+
+# ---------- vsetup:repo:start /Users/vince/Github/devpost-paypal ----------
+
+DEVPOST_PAYPAL_DIR="/Users/vince/Github/devpost-paypal"
+DEVPOST_PAYPAL_ALIASES="/Users/vince/Github/devpost-paypal/.vsetup/aliases.sh"
+
+load_devpost_paypal_aliases() {
+    if [[ "$PWD" == "$DEVPOST_PAYPAL_DIR" || "$PWD" == "$DEVPOST_PAYPAL_DIR/"* ]]; then
+        source "$DEVPOST_PAYPAL_ALIASES"
+    fi
+}
+
+load_devpost_paypal_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/devpost-paypal ----------
+
+# ---------- vsetup:repo:start /Users/vince/Github/stroke-device ----------
+
+STROKE_DEVICE_DIR="/Users/vince/Github/stroke-device"
+STROKE_DEVICE_ALIASES="/Users/vince/Github/stroke-device/.vsetup/aliases.sh"
+
+load_stroke_device_aliases() {
+    if [[ "$PWD" == "$STROKE_DEVICE_DIR" || "$PWD" == "$STROKE_DEVICE_DIR/"* ]]; then
+        source "$STROKE_DEVICE_ALIASES"
+    fi
+}
+
+load_stroke_device_aliases
+
+# ---------- vsetup:repo:end /Users/vince/Github/stroke-device ----------
